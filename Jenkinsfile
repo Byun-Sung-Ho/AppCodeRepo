@@ -13,10 +13,10 @@ node {
     stage('Build image') {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
-
+        
         app = docker.build("eks-gitops-demo")
     }
-
+    
     stage('Test image') {
         /* Run a test framework against our image. */
 
@@ -38,5 +38,21 @@ node {
             app.push("latest")
         }
         echo "Pushed image with tag: ${imageTag}"
+    }
+
+    stage('Update tag in ManifestRepo') {
+        dir("manifest") {
+          sshagent(credentials: ['gitUser']) {
+	      sh "git clone git@github.com:Byun-Sung-Ho/ManifestRepo.git ."
+              sh "git config user.email jenkins@example.com"
+              sh "git config user.name jenkins"
+              sh """sed -i 's|eks-gitops-demo:.*|eks-gitops-demo:${imageTag}|' deployment.yaml"""
+              sh "cat deployment.yaml"
+  
+              sh "git commit -am 'Update image tag' && git push git@github.com:Byun-Sung-Ho/ManifestRepo.git"
+	      echo "Pushed image ${imageTag}"
+  
+            }
+        }
     }
 }
