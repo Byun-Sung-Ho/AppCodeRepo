@@ -27,7 +27,7 @@ node {
         imageTag = sh(script: "head -n 1 Dockerfile | sed 's/#//'", returnStdout: true).trim()
 
         // ECR 로그인
-        docker.withRegistry('https://495599735720.dkr.ecr.us-west-2.amazonaws.com/eks-gitops', 'ecr:REGION:ecrUser') {
+        docker.withRegistry('https://495599735720.dkr.ecr.us-west-2.amazonaws.com/eks-gitops', 'ecr:us-west-2:ecrUser') {
             app.push("${imageTag}")   // 빌드된 이미지 푸시
             app.push("latest")        // 최신 태그 푸시
         }
